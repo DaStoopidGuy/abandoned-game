@@ -72,6 +72,11 @@ main :: proc() {
         // ------------
         // Update
 
+        if rl.IsKeyPressed(.ZERO) {
+            player.pos = 0
+            camera.target = player.pos
+        }
+
         if rl.IsWindowResized() {
             win.width = rl.GetScreenWidth()
             win.height = rl.GetScreenHeight()
@@ -87,7 +92,7 @@ main :: proc() {
 
         { // update camera position
             posDelta: f32 = rl.Vector2Distance(player.pos, camera.target)
-            camera.target = linalg.lerp(camera.target, player.pos, posDelta * 1/10000)
+            camera.target = linalg.lerp(camera.target, player.pos, posDelta * 1/1000)
         }
 
         // ------------

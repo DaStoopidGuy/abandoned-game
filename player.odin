@@ -1,5 +1,6 @@
 package main
 
+import "core:fmt"
 import rl "vendor:raylib"
 
 Player :: struct {
@@ -13,13 +14,12 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
     xMovement := int(rl.IsKeyDown(.RIGHT)) - int(rl.IsKeyDown(.LEFT))
     player.vel.x = f32(xMovement) * 50;
 
-    if rl.IsKeyDown(.SPACE) && player.onGround {
+    if rl.IsKeyPressed(.SPACE) && player.onGround {
         player.vel.y = -80
     }
 
-    if !player.onGround {
-        player.vel.y += 200 * dt
-    }
+    // gravity
+    player.vel.y += 200 * dt
 
     player.onGround = false
 
