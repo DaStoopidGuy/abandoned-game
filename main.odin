@@ -3,6 +3,7 @@ package main
 import "core:fmt"
 import rl "vendor:raylib"
 import "core:math/linalg"
+import "core:math"
 
 Window :: struct {
     width:  i32,
@@ -40,12 +41,7 @@ main :: proc() {
     playerTexture := rl.LoadTexture("assets/player.png")
     defer rl.UnloadTexture(playerTexture);
 
-    player := Player {
-        pos = rl.Vector2(0),
-        vel = rl.Vector2(0),
-        tex = playerTexture,
-        onGround = false,
-    }
+    player := new_player(playerTexture)
 
     groundTexture := rl.LoadTexture("assets/grass-tile.png")
     defer rl.UnloadTexture(groundTexture)
@@ -74,6 +70,8 @@ main :: proc() {
 
         if rl.IsKeyPressed(.ZERO) {
             player.pos = 0
+            player.vel = 0
+            player.onGround = false
             camera.target = player.pos
         }
 
@@ -89,6 +87,32 @@ main :: proc() {
         }
 
         update_player(&player, tiles, dt)
+
+        pos := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
+        // add tiles on left click
+        if (rl.IsMouseButtonDown(.LEFT)) {
+            found, _ := get_tile_index(pos, tiles)
+            if !found {
+                newTile := Tile {
+                    texture = groundTexture,
+                    rec = {
+                        x = math.floor(pos.x/8) * 8,
+                        y = math.floor(pos.y/8) * 8,
+                        width = 8,
+                        height = 8,
+                    }
+                }
+                append(&tiles, newTile)
+            }
+        }
+        
+        // remove tiles on right click
+        if (rl.IsMouseButtonDown(.RIGHT)) {
+            found, index := get_tile_index(pos, tiles)
+            if found {
+                unordered_remove(&tiles, index)
+            }
+        }
 
         { // update camera position
             posDelta: f32 = rl.Vector2Distance(player.pos, camera.target)
@@ -106,7 +130,9 @@ main :: proc() {
                 }
 
                 draw_player(player)
+                rl.DrawRectangleLines(i32(math.floor(pos.x/8) * 8), i32(math.floor(pos.y/8) * 8), 8, 8, rl.YELLOW)
             rl.EndMode2D()
+            rl.DrawFPS(20, 20)
         rl.EndDrawing()
     }
 }

@@ -10,8 +10,17 @@ Player :: struct {
     onGround: bool,
 }
 
+new_player :: proc(tex: rl.Texture2D) -> Player {
+    return {
+        tex = tex,
+        pos = 0,
+        vel = 0,
+        onGround = false,
+    }
+}
+
 update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
-    xMovement := int(rl.IsKeyDown(.RIGHT)) - int(rl.IsKeyDown(.LEFT))
+    xMovement := int(rl.IsKeyDown(.RIGHT) || rl.IsKeyDown(.D)) - int(rl.IsKeyDown(.LEFT) || rl.IsKeyDown(.A))
     player.vel.x = f32(xMovement) * 50;
 
     if rl.IsKeyPressed(.SPACE) && player.onGround {
@@ -19,9 +28,10 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
     }
 
     // gravity
-    player.vel.y += 200 * dt
+    if (!player.onGround) do player.vel.y += 200 * dt
 
-    player.onGround = false
+    //player.onGround = false
+    player.onGround = check_on_ground(player^, tiles)
 
     { // Collision checking
         using player
@@ -74,4 +84,22 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
 
 draw_player :: proc(player: Player) {
     rl.DrawTextureV(player.tex, player.pos, rl.WHITE)
+}
+
+@(private="file")
+check_on_ground :: proc(player: Player, tiles: [dynamic]Tile) -> bool {
+    using player
+
+    for tile in tiles {
+        player_foot_collider := rl.Rectangle {
+            x = pos.x, y = pos.y + f32(tex.width) - 1,
+            width = f32(tex.width),
+            height = 2,
+        }
+
+        if rl.CheckCollisionRecs(tile.rec, player_foot_collider) {
+            return true
+        }
+    }
+    return false
 }
