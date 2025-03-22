@@ -6,16 +6,16 @@ import rl "vendor:raylib"
 Player :: struct {
     pos: rl.Vector2,
     vel: rl.Vector2,
-    tex: rl.Texture2D,
-    onGround: bool,
+    current_anim: ^Animation,
+    on_ground: bool,
 }
 
-new_player :: proc(tex: rl.Texture2D) -> Player {
+new_player :: proc() -> Player {
     return {
-        tex = tex,
+        current_anim = &player_idle_anim,
         pos = 0,
         vel = 0,
-        onGround = false,
+        on_ground = false,
     }
 }
 
@@ -23,15 +23,15 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
     xMovement := int(rl.IsKeyDown(.RIGHT) || rl.IsKeyDown(.D)) - int(rl.IsKeyDown(.LEFT) || rl.IsKeyDown(.A))
     player.vel.x = f32(xMovement) * 50;
 
-    if rl.IsKeyPressed(.SPACE) && player.onGround {
+    // jump on space key
+    if rl.IsKeyPressed(.SPACE) && player.on_ground {
         player.vel.y = -80
     }
 
     // gravity
-    if (!player.onGround) do player.vel.y += 200 * dt
+    if (!player.on_ground) do player.vel.y += 200 * dt
 
-    //player.onGround = false
-    player.onGround = check_on_ground(player^, tiles)
+    player.on_ground = check_on_ground(player^, tiles)
 
     { // Collision checking
         using player
@@ -69,7 +69,7 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
                     // moving down and collided with top side of tile
                     pos.y = tile.rec.y - player_rec.height
                     vel.y = 0
-                    onGround = true
+                    on_ground = true
                 }
                 else if vel.y < 0 && player_rec.y < tile.rec.y + tile.rec.height {
                     // moving up and collided with bottom side of tile
@@ -80,10 +80,25 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
         }
 
     }
+
+    // animation stuff
+    // flip sprite based on movement direction
+    if xMovement > 0 do player.current_anim.flip = false
+    else if xMovement < 0 do player.current_anim.flip = true
+    
+    if player.vel.x == 0 do player.current_anim = &player_idle_anim
+    else do player.current_anim = &player_run_anim
+
+    if !player.on_ground {
+        if player.vel.y < 0 do player.current_anim = &player_jump_anim
+        else do player.current_anim = &player_fall_anim
+    }
+
+    update_anim(player.current_anim)
 }
 
 draw_player :: proc(player: Player) {
-    rl.DrawTextureV(player.tex, player.pos, rl.WHITE)
+    draw_anim(player.current_anim, player.pos)
 }
 
 @(private="file")
@@ -92,9 +107,9 @@ check_on_ground :: proc(player: Player, tiles: [dynamic]Tile) -> bool {
 
     for tile in tiles {
         player_foot_collider := rl.Rectangle {
-            x = pos.x, y = pos.y + f32(tex.width) - 1,
-            width = f32(tex.width),
-            height = 2,
+            x = pos.x, y = pos.y + 8,
+            width = 8,
+            height = 1,
         }
 
         if rl.CheckCollisionRecs(tile.rec, player_foot_collider) {

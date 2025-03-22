@@ -38,10 +38,10 @@ main :: proc() {
         rotation = 0,
     }
 
-    playerTexture := rl.LoadTexture("assets/player.png")
-    defer rl.UnloadTexture(playerTexture);
+    load_resources()
+    defer unload_resources()
 
-    player := new_player(playerTexture)
+    player := new_player()
 
     groundTexture := rl.LoadTexture("assets/grass-tile.png")
     defer rl.UnloadTexture(groundTexture)
@@ -71,7 +71,7 @@ main :: proc() {
         if rl.IsKeyPressed(.ZERO) {
             player.pos = 0
             player.vel = 0
-            player.onGround = false
+            player.on_ground = false
             camera.target = player.pos
         }
 
