@@ -12,12 +12,18 @@ jump_time_to_peak :: 0.4
 jump_time_to_descent :: 0.3
 jump_distance :: 40
 
+jump_buffer_time :: 0.1
+coyote_time :: 0.1
+
 
 Player :: struct {
     pos: rl.Vector2,
     vel: rl.Vector2,
     current_anim: ^Animation,
+    flip: bool,
     on_ground: bool,
+    jump_buffer: f32,
+    coyote_timer: f32,
 }
 
 new_player :: proc() -> Player {
@@ -38,12 +44,23 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
 
 
     // jump on space key
-    if inputs.player_jump && player.on_ground {
-        jump(player)
+    if inputs.player_jump {
+        player.jump_buffer = jump_buffer_time
+    }
+
+    if player.jump_buffer > 0 {
+        if player.on_ground || player.coyote_timer > 0 {
+            jump(player)
+        }
+        player.jump_buffer -= dt
     }
 
     // gravity
-    if (!player.on_ground) do player.vel.y += get_gravity(player^) * dt
+    if (!player.on_ground) {
+        player.vel.y += get_gravity(player^) * dt
+        if (player.coyote_timer > 0) do player.coyote_timer -= dt
+    }
+    else do player.coyote_timer = coyote_time
 
     player.on_ground = check_on_ground(player^, tiles)
 
@@ -97,8 +114,8 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
 
     // animation stuff
     // flip sprite based on movement direction
-    if xMovement > 0 do player.current_anim.flip = false
-    else if xMovement < 0 do player.current_anim.flip = true
+    if xMovement > 0 do player.flip = false
+    else if xMovement < 0 do player.flip = true
     
     if player.vel.x == 0 do player.current_anim = &player_idle_anim
     else do player.current_anim = &player_run_anim
@@ -112,7 +129,7 @@ update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
 }
 
 draw_player :: proc(player: Player) {
-    draw_anim(player.current_anim, player.pos)
+    draw_anim(player.current_anim, player.pos, player.flip)
 }
 
 @(private="file")
@@ -147,4 +164,5 @@ get_gravity :: proc(player: Player) -> f32 {
 jump :: proc(player: ^Player) {
     jump_velocity: f32 = ((-2.0 * jump_height) / jump_time_to_peak)
     player.vel.y = jump_velocity
+    player.jump_buffer = 0
 }

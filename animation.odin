@@ -4,7 +4,6 @@ import rl "vendor:raylib"
 
 Animation :: struct {
     texture: rl.Texture2D,
-    flip: bool,
     num_frames: int, // total frames in animation
     frame_length: f32, // duration of one frame (in seconds)
     frame_timer: f32,
@@ -26,7 +25,7 @@ update_anim :: proc(anim: ^Animation) {
     }
 }
 
-draw_anim :: proc(anim: ^Animation, pos: rl.Vector2) {
+draw_anim :: proc(anim: ^Animation, pos: rl.Vector2, flip: bool) {
     using anim
 
     frame_width := int(texture.width) / num_frames
