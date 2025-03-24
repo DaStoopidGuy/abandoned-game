@@ -3,6 +3,16 @@ package main
 import "core:fmt"
 import rl "vendor:raylib"
 
+// jump calculation video:
+// - https://youtu.be/IOe1aGY6hXA?si=D_jNq8hGS1tOy1D4
+// jump distance calculation:
+// - https://www.youtube.com/watch?v=_jdQ_SpBtbM
+jump_height :: 16
+jump_time_to_peak :: 0.4
+jump_time_to_descent :: 0.3
+jump_distance :: 40
+
+
 Player :: struct {
     pos: rl.Vector2,
     vel: rl.Vector2,
@@ -20,16 +30,20 @@ new_player :: proc() -> Player {
 }
 
 update_player :: proc(player: ^Player, tiles: [dynamic]Tile, dt: f32) {
-    xMovement := int(rl.IsKeyDown(.RIGHT) || rl.IsKeyDown(.D)) - int(rl.IsKeyDown(.LEFT) || rl.IsKeyDown(.A))
-    player.vel.x = f32(xMovement) * 50;
+    move_speed: f32 = jump_distance / (2 * jump_time_to_peak)
+
+    // horizontal movement
+    xMovement := int(inputs.player_right) - int(inputs.player_left)
+    player.vel.x = move_speed * f32(xMovement)
+
 
     // jump on space key
-    if rl.IsKeyPressed(.SPACE) && player.on_ground {
-        player.vel.y = -80
+    if inputs.player_jump && player.on_ground {
+        jump(player)
     }
 
     // gravity
-    if (!player.on_ground) do player.vel.y += 200 * dt
+    if (!player.on_ground) do player.vel.y += get_gravity(player^) * dt
 
     player.on_ground = check_on_ground(player^, tiles)
 
@@ -117,4 +131,20 @@ check_on_ground :: proc(player: Player, tiles: [dynamic]Tile) -> bool {
         }
     }
     return false
+}
+
+get_gravity :: proc(player: Player) -> f32 {
+    if player.vel.y > 0 {
+        fall_gravity: f32 = (2.0 * jump_height) / (jump_time_to_descent * jump_time_to_descent) 
+        return fall_gravity
+    }
+    else {
+        jump_gravity: f32 = (2.0 * jump_height) / (jump_time_to_peak * jump_time_to_peak) 
+        return jump_gravity
+    }
+}
+
+jump :: proc(player: ^Player) {
+    jump_velocity: f32 = ((-2.0 * jump_height) / jump_time_to_peak)
+    player.vel.y = jump_velocity
 }

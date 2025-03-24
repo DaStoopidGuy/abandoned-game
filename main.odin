@@ -65,10 +65,11 @@ main :: proc() {
 
     for !rl.WindowShouldClose() {
         dt := rl.GetFrameTime()
+        get_input()
         // ------------
         // Update
 
-        if rl.IsKeyPressed(.ZERO) {
+        if inputs.player_teleport_zero {
             player.pos = 0
             player.vel = 0
             player.on_ground = false
@@ -130,9 +131,12 @@ main :: proc() {
                 }
 
                 draw_player(player)
-                rl.DrawRectangleLines(i32(math.floor(pos.x/8) * 8), i32(math.floor(pos.y/8) * 8), 8, 8, rl.YELLOW)
             rl.EndMode2D()
             rl.DrawFPS(20, 20)
+            {
+                text := rl.TextFormat("Tiles: %d", len(tiles))
+                rl.DrawText(text, win.width - rl.MeasureText(text, 24) - 5, 5, 24, rl.DARKGREEN)
+            }
         rl.EndDrawing()
     }
 }

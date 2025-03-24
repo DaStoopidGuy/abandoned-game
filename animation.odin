@@ -5,8 +5,8 @@ import rl "vendor:raylib"
 Animation :: struct {
     texture: rl.Texture2D,
     flip: bool,
-    num_frames: int,
-    frame_length: f32,
+    num_frames: int, // total frames in animation
+    frame_length: f32, // duration of one frame (in seconds)
     frame_timer: f32,
     current_frame: int,
 }
@@ -16,9 +16,9 @@ update_anim :: proc(anim: ^Animation) {
 
     frame_timer += rl.GetFrameTime()
 
-    if (frame_timer >= frame_length) {
+    for frame_timer >= frame_length {
         current_frame += 1
-        frame_timer = 0
+        frame_timer -= frame_length
 
         if current_frame >= num_frames {
             current_frame = 0
