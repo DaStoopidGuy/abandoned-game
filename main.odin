@@ -43,22 +43,19 @@ main :: proc() {
 
     player := new_player()
 
-    groundTexture := rl.LoadTexture("assets/grass-tile.png")
-    defer rl.UnloadTexture(groundTexture)
-
     // all the tiles in the world lol
     tiles: [dynamic]Tile
 
     // add grass tiles at bottom of level
-    for i := 0; i < levelWidth; i += int(groundTexture.width) {
+    for i := 0; i < levelWidth; i += int(ground_tex.width) {
         tile := Tile{
             rec = {
-                width = f32(groundTexture.width),
-                height = f32(groundTexture.height),
+                width = f32(ground_tex.width),
+                height = f32(ground_tex.height),
                 x = f32(i),
-                y = f32(levelHeight-groundTexture.height),
+                y = f32(levelHeight-ground_tex.height),
             },
-            texture = groundTexture
+            texture = ground_tex
         }
         append(&tiles, tile)
     }
@@ -95,7 +92,7 @@ main :: proc() {
             found, _ := get_tile_index(pos, tiles)
             if !found {
                 newTile := Tile {
-                    texture = groundTexture,
+                    texture = ground_tex,
                     rec = {
                         x = math.floor(pos.x/8) * 8,
                         y = math.floor(pos.y/8) * 8,

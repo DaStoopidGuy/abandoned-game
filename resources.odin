@@ -7,6 +7,8 @@ player_idle_anim: Animation
 player_jump_anim: Animation
 player_fall_anim: Animation
 
+ground_tex: rl.Texture2D
+
 load_resources :: proc() {
     player_run_anim = Animation {
         texture = rl.LoadTexture("assets/player_run.png"),
@@ -28,6 +30,7 @@ load_resources :: proc() {
         num_frames = 3,
         frame_length = 0.1,
     }
+    ground_tex = rl.LoadTexture("assets/grass-tile.png")
 }
 
 unload_resources :: proc() {
@@ -35,5 +38,6 @@ unload_resources :: proc() {
     rl.UnloadTexture(player_idle_anim.texture)
     rl.UnloadTexture(player_jump_anim.texture)
     rl.UnloadTexture(player_fall_anim.texture)
+    rl.UnloadTexture(ground_tex)
 }
 
