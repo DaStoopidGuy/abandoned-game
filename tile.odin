@@ -3,7 +3,7 @@ package main
 import rl "vendor:raylib"
 
 Tile :: struct {
-    rec: rl.Rectangle,
+    using rec: rl.Rectangle,
     texture: rl.Texture2D,
 }
 

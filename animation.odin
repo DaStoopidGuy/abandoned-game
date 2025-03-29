@@ -31,7 +31,7 @@ update_anim :: proc(a: ^AnimationPlayer, dt: f32) {
     }
 }
 
-draw_anim :: proc(a: AnimationPlayer, pos: rl.Vector2, flip: bool) {
+draw_anim :: proc(a: AnimationPlayer, x: f32, y: f32, flip: bool) {
     frame_width := int(a.texture.width) / a.num_frames
     frame_height := a.texture.height
 
@@ -44,8 +44,8 @@ draw_anim :: proc(a: AnimationPlayer, pos: rl.Vector2, flip: bool) {
     if flip do source.width *= -1
 
     dest := rl.Rectangle {
-        x = pos.x,
-        y = pos.y,
+        x = x,
+        y = y,
         width = f32(frame_width),
         height = f32(frame_height),
     }

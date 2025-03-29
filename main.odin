@@ -67,10 +67,11 @@ main :: proc() {
         // Update
 
         if inputs.player_teleport_zero {
-            player.pos = 0
+            player.x = 0
+            player.y = 0
             player.vel = 0
             player.on_ground = false
-            camera.target = player.pos
+            camera.target = entity_pos(player)
         }
 
         if rl.IsWindowResized() {
@@ -113,8 +114,8 @@ main :: proc() {
         }
 
         { // update camera position
-            posDelta: f32 = rl.Vector2Distance(player.pos, camera.target)
-            camera.target = linalg.lerp(camera.target, player.pos, posDelta * 1/1000)
+            posDelta: f32 = rl.Vector2Distance(entity_pos(player), camera.target)
+            camera.target = linalg.lerp(camera.target, entity_pos(player), posDelta * 1/1000)
         }
 
         // ------------
