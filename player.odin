@@ -97,3 +97,10 @@ jump :: proc(player: ^Player) {
     player.vel.y = jump_velocity
     player.jump_buffer = 0
 }
+
+player_damage :: proc(player: ^Player, damage: int) {
+    entity_damage(player, damage)
+
+    fmt.println("Player hurt, health = ", player.health)
+    // TODO: it should also push player away
+}

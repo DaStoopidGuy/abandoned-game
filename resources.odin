@@ -8,6 +8,7 @@ player_jump_anim: Animation
 player_fall_anim: Animation
 
 ground_tex: rl.Texture2D
+skull_enemy_tex: rl.Texture2D
 
 load_resources :: proc() {
     player_run_anim = Animation {
@@ -31,6 +32,7 @@ load_resources :: proc() {
         frame_length = 0.1,
     }
     ground_tex = rl.LoadTexture("assets/grass-tile.png")
+    skull_enemy_tex = rl.LoadTexture("assets/skull enemy.png")
 }
 
 unload_resources :: proc() {
@@ -39,5 +41,6 @@ unload_resources :: proc() {
     rl.UnloadTexture(player_jump_anim.texture)
     rl.UnloadTexture(player_fall_anim.texture)
     rl.UnloadTexture(ground_tex)
+    rl.UnloadTexture(skull_enemy_tex)
 }
 

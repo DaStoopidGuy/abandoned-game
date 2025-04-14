@@ -48,5 +48,5 @@ main :: proc() {
 
     game_init()
     defer game_deinit()
-    game_update_and_draw()
+    game_loop()
 }

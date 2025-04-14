@@ -49,12 +49,10 @@ update_enemy :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) 
     // on player collision
     if (e.cooldown <= 0 && rl.CheckCollisionRecs(e, player)) {
         e.cooldown = enemy_attack_cooldown_time
-        entity_damage(player, enemy_damage)
-        fmt.println("Player hurt, health = ", player.health)
-        // TODO: it should also push player away
+        player_damage(player, enemy_damage)
     }
 }
 
 draw_enemy :: proc(e: Enemy) {
-    rl.DrawRectangleRec(e.rec, rl.BLACK)
+    rl.DrawTextureV(skull_enemy_tex, entity_pos(e), rl.WHITE)
 }
