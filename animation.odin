@@ -6,6 +6,7 @@ AnimationPlayer :: struct {
     using anim: Animation,
     cur_frame: int,
     frame_timer: f32,
+    flip: bool,
 }
 
 Animation :: struct {
@@ -31,7 +32,7 @@ update_anim :: proc(a: ^AnimationPlayer, dt: f32) {
     }
 }
 
-draw_anim :: proc(a: AnimationPlayer, x: f32, y: f32, flip: bool) {
+draw_anim :: proc(a: AnimationPlayer, x: f32, y: f32) {
     frame_width := int(a.texture.width) / a.num_frames
     frame_height := a.texture.height
 
@@ -41,7 +42,7 @@ draw_anim :: proc(a: AnimationPlayer, x: f32, y: f32, flip: bool) {
         width = f32(frame_width),
         height = f32(frame_height),
     }
-    if flip do source.width *= -1
+    if a.flip do source.width *= -1
 
     dest := rl.Rectangle {
         x = x,

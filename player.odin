@@ -15,19 +15,22 @@ jump_distance :: 40
 jump_buffer_time :: 0.1
 coyote_time :: 0.1
 
+max_health :: 100
+
 
 Player :: struct {
     using entity: Entity,
     anim: AnimationPlayer,
-    flip: bool,
     jump_buffer: f32,
     coyote_timer: f32,
+    health: int,
 }
 
 new_player :: proc() -> Player {
     return {
         entity = new_entity(),
         anim = {anim = player_idle_anim},
+        health = max_health,
     }
 }
 
@@ -60,8 +63,8 @@ update_player :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
 
     // animation stuff
     // flip sprite based on movement direction
-    if xMovement > 0 do p.flip = false
-    else if xMovement < 0 do p.flip = true
+    if xMovement > 0 do p.anim.flip = false
+    else if xMovement < 0 do p.anim.flip = true
     
     if p.vel.x == 0 do set_anim(&p.anim, player_idle_anim)
     else do set_anim(&p.anim, player_run_anim)
@@ -76,7 +79,7 @@ update_player :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
 }
 
 draw_player :: proc(player: Player) {
-    draw_anim(player.anim, player.x, player.y, player.flip)
+    draw_anim(player.anim, player.x, player.y)
 }
 
 get_gravity :: proc(player: Player) -> f32 {
