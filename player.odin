@@ -15,27 +15,26 @@ jump_distance :: 40
 jump_buffer_time :: 0.1
 coyote_time :: 0.1
 
-max_health :: 100
-
 
 Player :: struct {
     using entity: Entity,
     anim: AnimationPlayer,
     jump_buffer: f32,
     coyote_timer: f32,
-    health: int,
 }
 
 new_player :: proc() -> Player {
     return {
         entity = new_entity(),
         anim = {anim = player_idle_anim},
-        health = max_health,
     }
 }
 
 update_player :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
     move_speed: f32 = jump_distance / (2 * jump_time_to_peak)
+
+    // check health
+    if (p.health <= 0) do game_reset()
 
     // horizontal movement
     xMovement := int(inputs.player_right) - int(inputs.player_left)

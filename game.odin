@@ -19,7 +19,18 @@ game_init :: proc() {
 
     load_resources()
 
+    game_set_defaults()
+}
+
+game_deinit :: proc() {
+    delete(game.tiles)
+    unload_resources()
+    rl.CloseWindow()
+}
+
+game_set_defaults :: proc() {
     using game
+
     camera = rl.Camera2D{
         offset = rl.Vector2{
             f32(win.width/2), f32(win.height/2)
@@ -30,7 +41,7 @@ game_init :: proc() {
     }
 
     player = new_player()
-    enemy  = new_enemy()
+    enemy  = new_enemy(x=24)
 
     levelWidth :: 80
     levelHeight :: 64
@@ -50,10 +61,11 @@ game_init :: proc() {
     }
 }
 
-game_deinit :: proc() {
-    delete(game.tiles)
-    unload_resources()
-    rl.CloseWindow()
+game_reset :: proc() {
+    using game
+    // remove previous tiles
+    clear(&tiles)
+    game_set_defaults()
 }
 
 game_update_and_draw :: proc() {
@@ -84,7 +96,7 @@ game_update_and_draw :: proc() {
         }
 
         update_player(&player, tiles, dt)
-        update_enemy(&enemy, player, tiles, dt)
+        update_enemy(&enemy, &player, tiles, dt)
 
         pos := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
         // add tiles on left click

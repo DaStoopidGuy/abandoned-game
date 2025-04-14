@@ -6,22 +6,29 @@ package main
 
 import rl "vendor:raylib"
 
+entity_default_health :: 100
+
 Entity :: struct {
     using rec: rl.Rectangle,
     vel: rl.Vector2,
     on_ground: bool,
+    health: int,
 }
 
-new_entity :: proc(x: f32 = 0, y: f32 = 0, w: f32 = 8, h: f32 = 8) -> Entity {
+new_entity :: proc(
+    x: f32 = 0, y: f32 = 0,
+    w: f32 = 8, h: f32 = 8,
+    hp: int = entity_default_health ) -> Entity {
     return {
-        {
+        rec = {
             x = x,
             y = y,
             width = w,
             height = h,
         },
-        0,
-        false,
+        vel = 0,
+        on_ground = false,
+        health = hp,
     }
 }
 
@@ -86,4 +93,8 @@ entity_pos :: proc(e: Entity) -> rl.Vector2 {
         e.x,
         e.y
     }
+}
+
+entity_damage :: proc(e: ^Entity, damage_points: int) {
+    e.health -= damage_points
 }
