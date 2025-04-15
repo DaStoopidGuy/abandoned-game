@@ -163,10 +163,12 @@ game_draw :: proc() {
     draw_player(player)
     draw_enemy(enemy)
     rl.EndMode2D()
-    rl.DrawFPS(20, 20)
-    {
-        text := rl.TextFormat("Tiles: %d", len(tiles))
-        rl.DrawText(text, win.width - rl.MeasureText(text, 24) - 5, 5, 24, rl.DARKGREEN)
+    when ODIN_DEBUG {
+        rl.DrawFPS(20, 20)
+        {
+            text := rl.TextFormat("Tiles: %d", len(tiles))
+            rl.DrawText(text, win.width - rl.MeasureText(text, 24) - 5, 5, 24, rl.DARKGREEN)
+        }
     }
     rl.EndDrawing()
 }

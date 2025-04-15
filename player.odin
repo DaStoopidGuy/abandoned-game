@@ -101,6 +101,6 @@ jump :: proc(player: ^Player) {
 player_damage :: proc(player: ^Player, damage: int) {
     entity_damage(player, damage)
 
-    fmt.println("Player hurt, health = ", player.health)
+    fmt.println("Player damaged, health = ", player.health)
     // TODO: it should also push player away
 }

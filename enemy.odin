@@ -10,6 +10,7 @@ enemy_attack_cooldown_time :: 0.2
 
 Enemy :: struct {
     using entity: Entity,
+    anim: AnimationPlayer,
     cooldown: f32,
 }
 
@@ -19,6 +20,7 @@ new_enemy :: proc(
     hp: int = entity_default_health) -> Enemy {
     return {
         entity = new_entity(x, y, w, h, hp),
+        anim = { anim = pookie_idle_anim },
         cooldown = 0,
     }
 }
@@ -33,8 +35,10 @@ update_enemy :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) 
     player_in_range := rl.Vector2Distance(entity_pos(e), entity_pos(player)) < enemy_range
     player_in_sight := player.y < e.y+e.height && player.y+player.height > e.y
 
+    direction := math.sign(player.x - e.x)
+
     if player_in_range && player_in_sight {
-        e.vel.x = math.sign(player.x - e.x) * 30
+        e.vel.x = direction * 30
     }
     else {
         e.vel.x = 0
@@ -51,8 +55,17 @@ update_enemy :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) 
         e.cooldown = enemy_attack_cooldown_time
         player_damage(player, enemy_damage)
     }
+
+    // animation stuff
+    if e.vel == 0 do set_anim(&e.anim, pookie_idle_anim)
+    else do set_anim(&e.anim, pookie_run_anim)
+
+    if direction > 0 do e.anim.flip = false
+    else if direction < 0 do e.anim.flip = true
+
+    update_anim(&e.anim, dt)
 }
 
 draw_enemy :: proc(e: Enemy) {
-    rl.DrawTextureV(skull_enemy_tex, entity_pos(e), rl.WHITE)
+    draw_anim(e.anim, e.x, e.y)
 }

@@ -7,8 +7,10 @@ player_idle_anim: Animation
 player_jump_anim: Animation
 player_fall_anim: Animation
 
+pookie_run_anim: Animation
+pookie_idle_anim: Animation
+
 ground_tex: rl.Texture2D
-skull_enemy_tex: rl.Texture2D
 
 load_resources :: proc() {
     player_run_anim = Animation {
@@ -31,8 +33,19 @@ load_resources :: proc() {
         num_frames = 3,
         frame_length = 0.1,
     }
+
+    pookie_run_anim = Animation {
+        texture = rl.LoadTexture("assets/skull enemy run.png"),
+        num_frames = 4,
+        frame_length = 0.1,
+    }
+    pookie_idle_anim = Animation {
+        texture = rl.LoadTexture("assets/skull enemy idle.png"),
+        num_frames = 4,
+        frame_length = 0.1,
+    }
+
     ground_tex = rl.LoadTexture("assets/grass-tile.png")
-    skull_enemy_tex = rl.LoadTexture("assets/skull enemy.png")
 }
 
 unload_resources :: proc() {
@@ -40,7 +53,10 @@ unload_resources :: proc() {
     rl.UnloadTexture(player_idle_anim.texture)
     rl.UnloadTexture(player_jump_anim.texture)
     rl.UnloadTexture(player_fall_anim.texture)
+    
+    rl.UnloadTexture(pookie_run_anim.texture)
+    rl.UnloadTexture(pookie_idle_anim.texture)
+
     rl.UnloadTexture(ground_tex)
-    rl.UnloadTexture(skull_enemy_tex)
 }
 
