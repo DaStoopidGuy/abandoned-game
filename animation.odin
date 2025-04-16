@@ -15,11 +15,11 @@ Animation :: struct {
     frame_length: f32, // duration of one frame (in seconds)
 }
 
-set_anim :: proc(a: ^AnimationPlayer, anim: Animation) {
+anim_set :: proc(a: ^AnimationPlayer, anim: Animation) {
     a.anim = anim
 }
 
-update_anim :: proc(a: ^AnimationPlayer, dt: f32) {
+anim_update :: proc(a: ^AnimationPlayer, dt: f32) {
     a.frame_timer += dt
 
     for a.frame_timer >= a.frame_length {
@@ -32,7 +32,7 @@ update_anim :: proc(a: ^AnimationPlayer, dt: f32) {
     }
 }
 
-draw_anim :: proc(a: AnimationPlayer, x: f32, y: f32) {
+anim_draw :: proc(a: AnimationPlayer, x: f32, y: f32) {
     frame_width := int(a.texture.width) / a.num_frames
     frame_height := a.texture.height
 

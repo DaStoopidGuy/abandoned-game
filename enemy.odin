@@ -14,18 +14,18 @@ Enemy :: struct {
     cooldown: f32,
 }
 
-new_enemy :: proc(
+enemy_new :: proc(
     x: f32 = 0, y: f32 = 0,
     w: f32 = 8, h: f32 = 8,
     hp: int = entity_default_health) -> Enemy {
     return {
-        entity = new_entity(x, y, w, h, hp),
+        entity = entity_new(x, y, w, h, hp),
         anim = { anim = pookie_idle_anim },
         cooldown = 0,
     }
 }
 
-update_enemy :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) {
+enemy_update :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) {
     // gravity
     if !e.on_ground {
         e.vel.y += 90 * dt
@@ -44,7 +44,7 @@ update_enemy :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) 
         e.vel.x = 0
     }
 
-    update_entity(e, tiles, dt)
+    entity_update(e, tiles, dt)
 
     if (e.cooldown > 0) {
         e.cooldown -= dt
@@ -57,15 +57,16 @@ update_enemy :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) 
     }
 
     // animation stuff
-    if e.vel == 0 do set_anim(&e.anim, pookie_idle_anim)
-    else do set_anim(&e.anim, pookie_run_anim)
+    if e.vel.x != 0 do anim_set(&e.anim, pookie_run_anim)
+    else do anim_set(&e.anim, pookie_idle_anim)
 
     if direction > 0 do e.anim.flip = false
     else if direction < 0 do e.anim.flip = true
 
-    update_anim(&e.anim, dt)
+    anim_update(&e.anim, dt)
 }
 
-draw_enemy :: proc(e: Enemy) {
-    draw_anim(e.anim, e.x, e.y)
+enemy_draw :: proc(e: Enemy) {
+    anim_draw(e.anim, e.x, e.y)
+    entity_draw_health_bar(e)
 }

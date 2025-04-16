@@ -23,14 +23,14 @@ Player :: struct {
     coyote_timer: f32,
 }
 
-new_player :: proc() -> Player {
+player_new :: proc() -> Player {
     return {
-        entity = new_entity(),
+        entity = entity_new(),
         anim = {anim = player_idle_anim},
     }
 }
 
-update_player :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
+player_update :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
     move_speed: f32 = jump_distance / (2 * jump_time_to_peak)
 
     // check health
@@ -65,22 +65,29 @@ update_player :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
     if xMovement > 0 do p.anim.flip = false
     else if xMovement < 0 do p.anim.flip = true
     
-    if p.vel.x == 0 do set_anim(&p.anim, player_idle_anim)
-    else do set_anim(&p.anim, player_run_anim)
+    if p.vel.x == 0 do anim_set(&p.anim, player_idle_anim)
+    else do anim_set(&p.anim, player_run_anim)
 
     if !p.on_ground {
-        if p.vel.y < 0 do set_anim(&p.anim, player_jump_anim)
-        else do set_anim(&p.anim, player_fall_anim)
+        if p.vel.y < 0 do anim_set(&p.anim, player_jump_anim)
+        else do anim_set(&p.anim, player_fall_anim)
     }
 
-    update_entity(p, tiles, dt)
-    update_anim(&p.anim, dt)
+    entity_update(p, tiles, dt)
+    anim_update(&p.anim, dt)
 }
 
-draw_player :: proc(player: Player) {
-    draw_anim(player.anim, player.x, player.y)
+player_draw :: proc(player: Player) {
+    anim_draw(player.anim, player.x, player.y)
+    entity_draw_health_bar(player)
 }
 
+player_damage :: proc(player: ^Player, damage: int) {
+    entity_damage(player, damage)
+    // TODO: it should also push player away
+}
+
+@(private="file")
 get_gravity :: proc(player: Player) -> f32 {
     if player.vel.y > 0 {
         fall_gravity: f32 = (2.0 * jump_height) / (jump_time_to_descent * jump_time_to_descent) 
@@ -92,15 +99,9 @@ get_gravity :: proc(player: Player) -> f32 {
     }
 }
 
+@(private="file")
 jump :: proc(player: ^Player) {
     jump_velocity: f32 = ((-2.0 * jump_height) / jump_time_to_peak)
     player.vel.y = jump_velocity
     player.jump_buffer = 0
-}
-
-player_damage :: proc(player: ^Player, damage: int) {
-    entity_damage(player, damage)
-
-    fmt.println("Player damaged, health = ", player.health)
-    // TODO: it should also push player away
 }

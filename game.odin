@@ -42,8 +42,8 @@ game_set_defaults :: proc() {
         rotation = 0,
     }
 
-    player = new_player()
-    enemy  = new_enemy(x=24)
+    player = player_new()
+    enemy  = enemy_new(x=24)
 
     levelWidth :: 80
     levelHeight :: 64
@@ -113,13 +113,13 @@ game_update :: proc(dt: f32) {
         }
     }
 
-    update_player(&player, tiles, dt)
-    update_enemy(&enemy, &player, tiles, dt)
+    player_update(&player, tiles, dt)
+    enemy_update(&enemy, &player, tiles, dt)
 
     pos := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
     // add tiles on left click
     if (rl.IsMouseButtonDown(.LEFT)) {
-        found, _ := get_tile_index(pos, tiles)
+        found, _ := tile_index_from_pos(pos, tiles)
         if !found {
             newTile := Tile {
                 texture = ground_tex,
@@ -136,7 +136,7 @@ game_update :: proc(dt: f32) {
 
     // remove tiles on right click
     if (rl.IsMouseButtonDown(.RIGHT)) {
-        found, index := get_tile_index(pos, tiles)
+        found, index := tile_index_from_pos(pos, tiles)
         if found {
             unordered_remove(&tiles, index)
         }
@@ -157,12 +157,16 @@ game_draw :: proc() {
 
     rl.BeginMode2D(camera)
     for tile in tiles {
-        draw_tile(tile)
+        tile_draw(tile)
     }
 
-    draw_player(player)
-    draw_enemy(enemy)
+    player_draw(player)
+    enemy_draw(enemy)
     rl.EndMode2D()
+    if paused {
+        text :: "PAUSED"
+        rl.DrawText(text, win.width/2 - rl.MeasureText(text, 20)/2, 10, 20, rl.RED)
+    }
     when ODIN_DEBUG {
         rl.DrawFPS(20, 20)
         {
