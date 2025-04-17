@@ -30,20 +30,25 @@ player_new :: proc() -> Player {
     }
 }
 
-player_update :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
+player_update :: proc(p: ^Player, dt: f32) {
     move_speed: f32 = jump_distance / (2 * jump_time_to_peak)
 
     // check health
-    if (p.health <= 0) do game_reset()
+    if (p.health <= 0) do player_reset(p)
 
     // horizontal movement
     xMovement := int(inputs.player_right) - int(inputs.player_left)
     p.vel.x = move_speed * f32(xMovement)
 
 
-    // jump on space key
+    // jump
     if inputs.player_jump {
         p.jump_buffer = jump_buffer_time
+    }
+
+    // shoot bullshit
+    if inputs.player_shoot {
+        player_shoot(p^)
     }
 
     if p.jump_buffer > 0 {
@@ -73,7 +78,7 @@ player_update :: proc(p: ^Player, tiles: [dynamic]Tile, dt: f32) {
         else do anim_set(&p.anim, player_fall_anim)
     }
 
-    entity_update(p, tiles, dt)
+    entity_update(p, game.tiles, dt)
     anim_update(&p.anim, dt)
 }
 
@@ -85,6 +90,20 @@ player_draw :: proc(player: Player) {
 player_damage :: proc(player: ^Player, damage: int) {
     entity_damage(player, damage)
     // TODO: it should also push player away
+}
+
+player_shoot :: proc(p: Player) {
+    player_direction: f32 = p.anim.flip ? -1 : 1
+    bullet_x := player_direction > 0 ? p.x + p.width : p.x - 4 // HACK: 4 is bullet width (hardcoded)
+    bullet_y := p.y + p.height / 2
+    bullet := bullet_new(bullet_x, bullet_y, player_direction)
+    append(&game.bullets, bullet)
+}
+
+player_reset :: proc(p: ^Player) {
+    p.x, p.y = 0, 0
+    p.vel = 0
+    p.health = entity_default_health
 }
 
 @(private="file")

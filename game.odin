@@ -8,6 +8,7 @@ Game :: struct {
     player: Player,
     enemy: Enemy, // dynamic array of enemies later
     tiles: [dynamic]Tile,
+    bullets: [dynamic]Bullet,
     paused: bool,
 }
 
@@ -25,6 +26,7 @@ game_init :: proc() {
 
 game_deinit :: proc() {
     delete(game.tiles)
+    delete(game.bullets)
     unload_resources()
     rl.CloseWindow()
 }
@@ -80,6 +82,7 @@ game_loop :: proc() {
         if inputs.pause {
             game.paused = !game.paused
         }
+        if inputs.game_reset do game_reset()
 
         // Update
         if !game.paused do game_update(dt)
@@ -113,7 +116,8 @@ game_update :: proc(dt: f32) {
         }
     }
 
-    player_update(&player, tiles, dt)
+    player_update(&player, dt)
+    update_bullets(dt)
     enemy_update(&enemy, &player, tiles, dt)
 
     pos := rl.GetScreenToWorld2D(rl.GetMousePosition(), camera)
@@ -149,30 +153,46 @@ game_update :: proc(dt: f32) {
 }
 
 game_draw :: proc() {
-    using game
     // ------------
     // Draw
     rl.BeginDrawing()
     rl.ClearBackground(rl.BEIGE)
 
-    rl.BeginMode2D(camera)
-    for tile in tiles {
+    rl.BeginMode2D(game.camera)
+    for tile in game.tiles {
         tile_draw(tile)
     }
 
-    player_draw(player)
-    enemy_draw(enemy)
+    player_draw(game.player)
+    draw_bullets()
+    enemy_draw(game.enemy)
     rl.EndMode2D()
-    if paused {
+    if game.paused {
         text :: "PAUSED"
         rl.DrawText(text, win.width/2 - rl.MeasureText(text, 20)/2, 10, 20, rl.RED)
     }
     when ODIN_DEBUG {
         rl.DrawFPS(20, 20)
         {
-            text := rl.TextFormat("Tiles: %d", len(tiles))
+            text := rl.TextFormat("Tiles: %d", len(game.tiles))
             rl.DrawText(text, win.width - rl.MeasureText(text, 24) - 5, 5, 24, rl.DARKGREEN)
         }
     }
     rl.EndDrawing()
+}
+
+update_bullets :: proc(dt: f32) {
+    for &bullet, idx in game.bullets {
+        if !bullet.alive {
+            unordered_remove(&game.bullets, idx)
+            continue
+        }
+        bullet_update(&bullet, &game.enemy, dt)
+    }
+}
+
+draw_bullets :: proc() {
+    for bullet in game.bullets {
+        bullet_draw(bullet)
+    }
 }

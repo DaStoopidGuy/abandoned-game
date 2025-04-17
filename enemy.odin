@@ -46,12 +46,16 @@ enemy_update :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) 
 
     entity_update(e, tiles, dt)
 
-    if (e.cooldown > 0) {
+    if e.health <= 0 {
+        enemy_reset(e)
+    }
+
+    if e.cooldown > 0 {
         e.cooldown -= dt
     }
 
     // on player collision
-    if (e.cooldown <= 0 && rl.CheckCollisionRecs(e, player)) {
+    if e.cooldown <= 0 && rl.CheckCollisionRecs(e, player) {
         e.cooldown = enemy_attack_cooldown_time
         player_damage(player, enemy_damage)
     }
@@ -69,4 +73,10 @@ enemy_update :: proc(e: ^Enemy, player: ^Player, tiles: [dynamic]Tile, dt: f32) 
 enemy_draw :: proc(e: Enemy) {
     anim_draw(e.anim, e.x, e.y)
     entity_draw_health_bar(e)
+}
+
+enemy_reset :: proc(e: ^Enemy) {
+    e.x, e.y = 0, 0
+    e.vel = 0
+    e.health = entity_default_health
 }
